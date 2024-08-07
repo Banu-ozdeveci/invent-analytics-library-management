@@ -1,12 +1,35 @@
-import { DataTypes, Model } from "sequelize";
-import sequelize from "./database";
+import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "../sequelize";
+import User from "./User";
 
-class Book extends Model {}
+interface BookAttributes {
+  id: number;
+  name: string;
+  averageRating: number;
+  borrowedBy: number | null;
+}
+
+interface BookCreationAttributes
+  extends Optional<BookAttributes, "id" | "averageRating" | "borrowedBy"> {}
+
+class Book
+  extends Model<BookAttributes, BookCreationAttributes>
+  implements BookAttributes
+{
+  public id!: number;
+  public name!: string;
+  public averageRating!: number;
+  public borrowedBy!: number | null;
+
+  // timestamps!
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
 
 Book.init(
   {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER.UNSIGNED,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -16,13 +39,20 @@ Book.init(
     },
     averageRating: {
       type: DataTypes.FLOAT,
+      defaultValue: -1,
+    },
+    borrowedBy: {
+      type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: 0,
+      references: {
+        model: User,
+        key: "id",
+      },
     },
   },
   {
     sequelize,
-    modelName: "Book",
+    tableName: "books",
   }
 );
 

@@ -1,12 +1,28 @@
-import { DataTypes, Model } from "sequelize";
-import sequelize from "./database";
+import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "../sequelize";
 
-class User extends Model {}
+interface UserAttributes {
+  id: number;
+  name: string;
+}
+
+interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
+
+class User
+  extends Model<UserAttributes, UserCreationAttributes>
+  implements UserAttributes
+{
+  public id!: number;
+  public name!: string;
+
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
 
 User.init(
   {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER.UNSIGNED,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -14,15 +30,10 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    score: {
-      type: DataTypes.FLOAT,
-      allowNull: true,
-      defaultValue: 0,
-    },
   },
   {
     sequelize,
-    modelName: "User",
+    tableName: "users",
   }
 );
 
